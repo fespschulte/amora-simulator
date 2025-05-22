@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: amora_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: amora
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: amora_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      # Pass environment variables from your .env file to the container
+      # This requires Docker Compose 1.28+ and a .env file in the project root
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/amora # Use the service name 'db' here!
+      SECRET_KEY: ${SECRET_KEY}
+    volumes:
+      # Mount your backend code into the container for development (optional but helpful for --reload)
+      - ./backend:/app
+    depends_on:
+      - db # Ensure the database starts before the backend
+
+volumes:
+  postgres_data:

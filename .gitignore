@@ -1,41 +1,17 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+        # Python
+        backend/venv/
+        backend/__pycache__/
+        backend/.pytest_cache/
+        backend/*.pyc
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+        # Node.js (if applicable for frontend)
+        amora-simulator-frontend/node_modules/
+        amora-simulator-frontend/.next/ # Next.js build output
+        amora-simulator-frontend/dist/
+        amora-simulator-frontend/.gitignore # Ignore the old gitignore if it exists
 
-# testing
-/coverage
+        # Environment variables
+        .env
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+        # Docker volumes (often managed outside git)
+        # postgres_data/
