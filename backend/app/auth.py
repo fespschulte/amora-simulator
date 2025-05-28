@@ -28,10 +28,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = schemas.TokenData(email=username)
     except JWTError:
         raise credentials_exception
-    user = crud.get_user_by_username(db, username=token_data.username)
+    user = crud.get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
