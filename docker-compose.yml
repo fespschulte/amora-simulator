@@ -13,23 +13,50 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: amora_backend
     restart: always
     ports:
       - "8000:8000"
     environment:
-      # Pass environment variables from your .env file to the container
-      # This requires Docker Compose 1.28+ and a .env file in the project root
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/amora # Use the service name 'db' here!
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/amora
       SECRET_KEY: ${SECRET_KEY}
     volumes:
-      # Mount your backend code into the container for development (optional but helpful for --reload)
       - ./backend:/app
+      - backend_logs:/app/logs
     depends_on:
-      - db # Ensure the database starts before the backend
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build: ./amora-simulator-frontend
+    container_name: amora_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./amora-simulator-frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000/api
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  backend_logs:

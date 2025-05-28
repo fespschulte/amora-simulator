@@ -1,17 +1,71 @@
-        # Python
-        backend/venv/
-        backend/__pycache__/
-        backend/.pytest_cache/
-        backend/*.pyc
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.env
+venv/
+.venv/
+ENV/
 
-        # Node.js (if applicable for frontend)
-        amora-simulator-frontend/node_modules/
-        amora-simulator-frontend/.next/ # Next.js build output
-        amora-simulator-frontend/dist/
-        amora-simulator-frontend/.gitignore # Ignore the old gitignore if it exists
+# Node
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-        # Environment variables
-        .env
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 
-        # Docker volumes (often managed outside git)
-        # postgres_data/
+# Database
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Environment variables
+.env
+
+# Docker volumes (often managed outside git)
+# postgres_data/
