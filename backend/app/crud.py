@@ -27,6 +27,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 # Funções de usuário
+def get_user_by_username(db: Session, username: str):
+    return db.query(models.User).filter(models.User.username == username).first()
+
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
@@ -63,17 +66,22 @@ def get_simulations(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     ).offset(skip).limit(limit).all()
 
 def create_simulation(db: Session, simulation: schemas.SimulationCreate, user_id: int):
-    # Calcular valores derivados
-    down_payment_value = simulation.property_value * (simulation.down_payment_percentage / 100)
-    financing_amount = simulation.property_value - down_payment_value
-    additional_costs = simulation.property_value * 0.15
-    monthly_savings = additional_costs / (simulation.contract_years * 12)
-    
+    # Calcular valores derivados com base nos dados de entrada
+    property_value = simulation.property_value
+    down_payment_percentage = simulation.down_payment_percentage
+    contract_years = simulation.contract_years
+
+    down_payment_value = property_value * (down_payment_percentage / 100)
+    financing_amount = property_value - down_payment_value
+    additional_costs = property_value * 0.15
+    # Evitar divisão por zero caso anos de contrato seja 0
+    monthly_savings = additional_costs / (contract_years * 12) if contract_years > 0 else additional_costs # Ou 0, dependendo da regra de negócio para 0 anos
+
     db_simulation = models.Simulation(
         user_id=user_id,
-        property_value=simulation.property_value,
-        down_payment_percentage=simulation.down_payment_percentage,
-        contract_years=simulation.contract_years,
+        property_value=property_value,
+        down_payment_percentage=down_payment_percentage,
+        contract_years=contract_years,
         down_payment_value=down_payment_value,
         financing_amount=financing_amount,
         additional_costs=additional_costs,
@@ -88,26 +96,34 @@ def create_simulation(db: Session, simulation: schemas.SimulationCreate, user_id
 
 def update_simulation(db: Session, simulation_id: int, simulation: schemas.SimulationUpdate):
     db_simulation = get_simulation(db, simulation_id)
-    
-    # Atualizar campos
+    if not db_simulation:
+        return None # Retornar None se a simulação não for encontrada
+
+    # Atualizar campos básicos
     db_simulation.property_value = simulation.property_value
     db_simulation.down_payment_percentage = simulation.down_payment_percentage
     db_simulation.contract_years = simulation.contract_years
     db_simulation.name = simulation.name
     db_simulation.notes = simulation.notes
-    
-    # Recalcular valores derivados
-    db_simulation.down_payment_value = simulation.property_value * (simulation.down_payment_percentage / 100)
-    db_simulation.financing_amount = simulation.property_value - db_simulation.down_payment_value
-    db_simulation.additional_costs = simulation.property_value * 0.15
-    db_simulation.monthly_savings = db_simulation.additional_costs / (simulation.contract_years * 12)
-    
+
+    # Recalcular valores derivados com base nos campos atualizados
+    property_value = db_simulation.property_value
+    down_payment_percentage = db_simulation.down_payment_percentage
+    contract_years = db_simulation.contract_years
+
+    db_simulation.down_payment_value = property_value * (down_payment_percentage / 100)
+    db_simulation.financing_amount = property_value - db_simulation.down_payment_value
+    db_simulation.additional_costs = property_value * 0.15
+     # Evitar divisão por zero caso anos de contrato seja 0
+    db_simulation.monthly_savings = db_simulation.additional_costs / (contract_years * 12) if contract_years > 0 else db_simulation.additional_costs # Ou 0, dependendo da regra de negócio para 0 anos
+
     db.commit()
     db.refresh(db_simulation)
     return db_simulation
 
 def delete_simulation(db: Session, simulation_id: int):
     db_simulation = get_simulation(db, simulation_id)
-    db.delete(db_simulation)
-    db.commit()
-    return db_simulation
+    if db_simulation:
+        db.delete(db_simulation)
+        db.commit()
+    return db_simulation # Retorna a simulação deletada ou None se não encontrada
