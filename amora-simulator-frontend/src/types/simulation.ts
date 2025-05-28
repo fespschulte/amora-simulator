@@ -6,9 +6,13 @@ export interface SimulationBase {
   notes?: string | null;
 }
 
-export interface SimulationCreate extends SimulationBase {}
+export interface SimulationCreate extends SimulationBase {
+  created_at?: Date;
+}
 
-export interface SimulationUpdate extends SimulationBase {}
+export interface SimulationUpdate extends SimulationBase {
+  updated_at?: Date;
+}
 
 export interface Simulation extends SimulationBase {
   id: number;
@@ -17,6 +21,6 @@ export interface Simulation extends SimulationBase {
   financing_amount: number;
   additional_costs: number;
   monthly_savings: number;
-  created_at: string; // Assuming datetime is sent as a string
-  updated_at: string; // Assuming datetime is sent as a string
+  created_at: string;
+  updated_at: string;
 }

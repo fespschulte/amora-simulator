@@ -60,7 +60,7 @@ export default function DashboardPage() {
       <PageHeader
         title="Dashboard"
         action={
-          <Button onClick={handleNewSimulation}>
+          <Button className="cursor-pointer" onClick={handleNewSimulation}>
             <Plus className="mr-2 h-4 w-4" /> Nova Simulação
           </Button>
         }
@@ -81,6 +81,7 @@ export default function DashboardPage() {
         {simulations.length > 3 && (
           <div className="mt-4 text-center">
             <Button
+              className="cursor-pointer"
               variant="outline"
               onClick={() => router.push("/dashboard/simulations")}
             >

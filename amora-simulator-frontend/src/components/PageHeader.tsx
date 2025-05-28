@@ -20,7 +20,12 @@ export function PageHeader({
   return (
     <div className="flex items-center justify-between gap-4">
       {showBackButton && (
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
+        <Button
+          className="cursor-pointer"
+          variant="outline"
+          size="icon"
+          onClick={() => router.back()}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
       )}

@@ -374,3 +374,14 @@ describe("API Service", () => {
     expect(targetRequest?.url).toBe(`/simulations/${simulationId}`);
   });
 });
+
+describe("authAPI", () => {
+  it("should handle login error", async () => {
+    const mockError = new Error("Invalid credentials");
+    axios.post.mockRejectedValueOnce(mockError);
+
+    await expect(authAPI.login("test@example.com", "password")).rejects.toThrow(
+      "Invalid credentials"
+    );
+  });
+});
