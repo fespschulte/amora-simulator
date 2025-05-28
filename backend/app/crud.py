@@ -13,7 +13,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -54,6 +54,35 @@ def authenticate_user(db: Session, email: str, password: str):
     # Atualizar último login
     user.last_login = datetime.utcnow()
     db.commit()
+    return user
+
+def update_user(db: Session, user: models.User, user_update: schemas.UserUpdate):
+    # Verify current password
+    if not verify_password(user_update.current_password, user.password_hash):
+        raise ValueError("Current password is incorrect")
+    
+    # Check if new username is already taken by another user
+    if user_update.username != user.username:
+        existing_user = get_user_by_username(db, user_update.username)
+        if existing_user and existing_user.id != user.id:
+            raise ValueError("Username already taken")
+    
+    # Check if new email is already taken by another user
+    if user_update.email != user.email:
+        existing_user = get_user_by_email(db, user_update.email)
+        if existing_user and existing_user.id != user.id:
+            raise ValueError("Email already taken")
+    
+    # Update user data
+    user.username = user_update.username
+    user.email = user_update.email
+    
+    # Update password if provided
+    if user_update.new_password:
+        user.password_hash = get_password_hash(user_update.new_password)
+    
+    db.commit()
+    db.refresh(user)
     return user
 
 # Funções de simulação

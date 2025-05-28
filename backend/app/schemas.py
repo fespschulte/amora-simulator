@@ -20,6 +20,18 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
+class UserUpdate(BaseModel):
+    username: str
+    email: EmailStr
+    current_password: str
+    new_password: Optional[str] = None
+
+    @validator('new_password')
+    def password_length(cls, v):
+        if v is not None and len(v) < 6:
+            raise ValueError('Password must be at least 6 characters')
+        return v
+
 class User(UserBase):
     id: int
     created_at: datetime
