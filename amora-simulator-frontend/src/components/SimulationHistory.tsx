@@ -123,7 +123,10 @@ export function SimulationHistory({
     <div className="w-full space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Histórico de Simulações</h2>
-        <Button onClick={() => router.push("/dashboard/simulations/new")}>
+        <Button
+          className="cursor-pointer"
+          onClick={() => router.push("/dashboard/simulations/new")}
+        >
           <Plus className="mr-2 h-4 w-4" /> Nova Simulação
         </Button>
       </div>

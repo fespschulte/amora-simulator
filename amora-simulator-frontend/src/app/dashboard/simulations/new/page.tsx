@@ -44,23 +44,23 @@ export default function NewSimulationPage() {
         description: "Sua simulação foi salva.",
       });
       // Exibir o resultado do backend antes de redirecionar
-      alert(`Simulação salva com os seguintes valores calculados pelo backend:\n
-        Valor da Entrada: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(savedSimulation.down_payment_value)}\n
-        Valor a Financiar: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(savedSimulation.financing_amount)}\n
-        Custos Adicionais: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(savedSimulation.additional_costs)}\n
-        Poupança Mensal: ${new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(savedSimulation.monthly_savings)}`);
+      // alert(`Simulação salva com os seguintes valores calculados pelo backend:\n
+      //   Valor da Entrada: ${new Intl.NumberFormat("pt-BR", {
+      //     style: "currency",
+      //     currency: "BRL",
+      //   }).format(savedSimulation.down_payment_value)}\n
+      //   Valor a Financiar: ${new Intl.NumberFormat("pt-BR", {
+      //     style: "currency",
+      //     currency: "BRL",
+      //   }).format(savedSimulation.financing_amount)}\n
+      //   Custos Adicionais: ${new Intl.NumberFormat("pt-BR", {
+      //     style: "currency",
+      //     currency: "BRL",
+      //   }).format(savedSimulation.additional_costs)}\n
+      //   Poupança Mensal: ${new Intl.NumberFormat("pt-BR", {
+      //     style: "currency",
+      //     currency: "BRL",
+      //   }).format(savedSimulation.monthly_savings)}`);
       // Redirect to simulations list
       router.push("/dashboard/simulations");
     } catch (error) {
