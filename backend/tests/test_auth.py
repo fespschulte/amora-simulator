@@ -45,7 +45,7 @@ def test_register_duplicate_user(client: TestClient):
         }
     )
     assert response2.status_code == 400
-    assert response2.json()["detail"] == "Email already registered"
+    assert response2.json()["detail"] == "Email já registrado"
 
     # Attempt to register with the same username (should fail)
     response3 = client.post(
