@@ -125,7 +125,10 @@ export default function EditSimulationPage() {
           onSubmit={handleUpdateSimulation}
           initialData={{
             // Map simulation data to form data structure if necessary
-            property_value: simulation.property_value.toString(), // Form might expect string
+            property_value: new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(simulation.property_value), // Format as currency
             down_payment_percentage: simulation.down_payment_percentage,
             contract_years: simulation.contract_years,
             simulation_name: simulation.name || "",
