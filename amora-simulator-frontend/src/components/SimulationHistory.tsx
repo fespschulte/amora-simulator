@@ -1,17 +1,15 @@
-// components/SimulationHistory.tsx
 "use client";
 
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  CheckCircle,
   Trash2,
   Edit,
   ChevronDown,
   ChevronUp,
   Calendar,
   Home,
-  DollarSign,
+  Plus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,16 +17,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -36,30 +27,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-
-interface Simulation {
-  id: string;
-  name: string | null;
-  property_value: number;
-  down_payment_percentage: number;
-  contract_years: number;
-  down_payment_value: number;
-  financing_amount: number;
-  additional_costs: number;
-  monthly_savings: number;
-  created_at: string;
-  updated_at: string;
-  notes?: string;
-}
+import { Simulation } from "../types/simulation";
+import { useRouter } from "next/navigation";
 
 interface SimulationHistoryProps {
   simulations?: Simulation[];
-  onEdit?: (id: string) => void;
-  onDelete?: (id: string) => void;
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
   loading?: boolean;
 }
 
@@ -69,11 +44,12 @@ export function SimulationHistory({
   onDelete,
   loading = false,
 }: SimulationHistoryProps) {
+  const router = useRouter();
   const [expandedSimulation, setExpandedSimulation] = useState<string | null>(
     null
   );
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [simulationToDelete, setSimulationToDelete] = useState<string | null>(
+  const [simulationToDelete, setSimulationToDelete] = useState<number | null>(
     null
   );
 
@@ -92,24 +68,24 @@ export function SimulationHistory({
     });
   };
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = (id: number) => {
     setSimulationToDelete(id);
     setDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
-    if (simulationToDelete && onDelete) {
+    if (simulationToDelete !== null && onDelete) {
       onDelete(simulationToDelete);
     }
     setDeleteDialogOpen(false);
     setSimulationToDelete(null);
   };
 
-  const toggleExpandSimulation = (id: string) => {
-    if (expandedSimulation === id) {
+  const toggleExpandSimulation = (id: number) => {
+    if (expandedSimulation === id.toString()) {
       setExpandedSimulation(null);
     } else {
-      setExpandedSimulation(id);
+      setExpandedSimulation(id.toString());
     }
   };
 
@@ -135,7 +111,9 @@ export function SimulationHistory({
           <p className="text-gray-500 dark:text-gray-400 mb-4">
             Crie sua primeira simulação para acompanhar aqui
           </p>
-          <Button>Nova Simulação</Button>
+          <Button onClick={() => router.push("/dashboard/simulations/new")}>
+            Nova Simulação
+          </Button>
         </CardContent>
       </Card>
     );
@@ -145,7 +123,9 @@ export function SimulationHistory({
     <div className="w-full space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Histórico de Simulações</h2>
-        <Button size="sm">Nova Simulação</Button>
+        <Button onClick={() => router.push("/dashboard/simulations/new")}>
+          <Plus className="mr-2 h-4 w-4" /> Nova Simulação
+        </Button>
       </div>
 
       <motion.div
@@ -240,7 +220,7 @@ export function SimulationHistory({
                   className="w-full mt-4"
                   onClick={() => toggleExpandSimulation(simulation.id)}
                 >
-                  {expandedSimulation === simulation.id ? (
+                  {expandedSimulation === simulation.id.toString() ? (
                     <span className="flex items-center gap-1">
                       Ver menos <ChevronUp size={16} />
                     </span>
@@ -251,7 +231,7 @@ export function SimulationHistory({
                   )}
                 </Button>
 
-                {expandedSimulation === simulation.id && (
+                {expandedSimulation === simulation.id.toString() && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}

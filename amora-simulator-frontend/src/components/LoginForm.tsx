@@ -5,18 +5,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authAPI } from "@/services/api";
+import { AxiosError } from "axios";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -36,9 +39,31 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit(
+    values: z.infer<typeof formSchema>,
+    event?: React.BaseSyntheticEvent
+  ) {
+    event?.preventDefault();
     console.log(values);
-    // Lógica de autenticação aqui
+    setError(null);
+    try {
+      await authAPI.login(values.email, values.password);
+      // Redirect on successful login
+      router.push("/dashboard");
+    } catch (error: AxiosError) {
+      console.error("Login failed:", error);
+      // TODO: Display error message to the user
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Erro desconhecido ao fazer login.";
+      setError(errorMessage);
+    }
+    // Add a small delay to see if it prevents refresh after error
+    await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
   return (
@@ -57,6 +82,9 @@ export function LoginForm() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
           <FormField
             control={form.control}
             name="email"

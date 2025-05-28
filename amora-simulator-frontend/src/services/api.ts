@@ -1,12 +1,10 @@
-// services/api.ts
 import axios from "axios";
+import { SimulationCreate, SimulationUpdate } from "../types/simulation";
 
-// Create axios instance with base URL
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api",
 });
 
-// Add a request interceptor to add the token to all requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("auth_token");
@@ -20,7 +18,6 @@ api.interceptors.request.use(
   }
 );
 
-// Add a response interceptor to handle token expiration
 api.interceptors.response.use(
   (response) => {
     return response;
@@ -30,18 +27,20 @@ api.interceptors.response.use(
       // Token expired or invalid, redirect to login
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user");
-      window.location.href = "/login";
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }
 );
 
-// Auth API
 export const authAPI = {
   login: async (email: string, password: string) => {
     const response = await api.post("/auth/login", { email, password });
-    localStorage.setItem("auth_token", response.data.token);
+    console.log("Login Response Data:", response.data);
+    localStorage.setItem("auth_token", response.data.access_token);
     localStorage.setItem("user", JSON.stringify(response.data.user));
+    console.log("Token stored:", localStorage.getItem("auth_token"));
+    console.log("Is Authenticated after login:", authAPI.isAuthenticated());
     return response.data;
   },
 
@@ -54,13 +53,9 @@ export const authAPI = {
     return response.data;
   },
 
-  logout: async () => {
-    try {
-      await api.post("/auth/logout");
-    } finally {
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("user");
-    }
+  logout: () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("user");
   },
 
   getCurrentUser: async () => {
@@ -85,12 +80,12 @@ export const simulationsAPI = {
     return response.data;
   },
 
-  create: async (simulationData: any) => {
+  create: async (simulationData: SimulationCreate) => {
     const response = await api.post("/simulations", simulationData);
     return response.data;
   },
 
-  update: async (id: string, simulationData: any) => {
+  update: async (id: string, simulationData: SimulationUpdate) => {
     const response = await api.put(`/simulations/${id}`, simulationData);
     return response.data;
   },
