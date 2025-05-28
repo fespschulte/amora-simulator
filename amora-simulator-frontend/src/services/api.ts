@@ -36,11 +36,8 @@ api.interceptors.response.use(
 export const authAPI = {
   login: async (email: string, password: string) => {
     const response = await api.post("/auth/login", { email, password });
-    console.log("Login Response Data:", response.data);
     localStorage.setItem("auth_token", response.data.access_token);
     localStorage.setItem("user", JSON.stringify(response.data.user));
-    console.log("Token stored:", localStorage.getItem("auth_token"));
-    console.log("Is Authenticated after login:", authAPI.isAuthenticated());
     return response.data;
   },
 
@@ -63,8 +60,43 @@ export const authAPI = {
     return response.data;
   },
 
-  isAuthenticated: () => {
-    return !!localStorage.getItem("auth_token");
+  updateProfile: async (data: {
+    username: string;
+    email: string;
+    current_password: string;
+    new_password?: string;
+  }) => {
+    const response = await api.put("/auth/me", data);
+
+    // Get current user data from localStorage or initialize empty object
+    const currentUserStr = localStorage.getItem("user");
+    const currentUser = currentUserStr ? JSON.parse(currentUserStr) : {};
+
+    // Update user data in localStorage
+    const updatedUser = {
+      ...currentUser,
+      username: data.username,
+      email: data.email,
+    };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+
+    return response.data;
+  },
+
+  isAuthenticated: async () => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return false;
+
+    try {
+      // Try to get current user to validate token
+      await api.get("/auth/me");
+      return true;
+    } catch (error) {
+      // If request fails, token is invalid
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("user");
+      return false;
+    }
   },
 };
 
