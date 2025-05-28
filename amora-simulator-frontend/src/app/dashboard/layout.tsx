@@ -30,7 +30,7 @@ export default function DashboardLayout({
     const checkAuth = async () => {
       try {
         if (!authAPI.isAuthenticated()) {
-          router.push("/login");
+          router.push("/");
           return;
         }
 
@@ -38,7 +38,7 @@ export default function DashboardLayout({
         setUser(userData);
       } catch (error) {
         console.error("Authentication error:", error);
-        router.push("/login");
+        router.push("/");
       } finally {
         setLoading(false);
       }
@@ -50,7 +50,7 @@ export default function DashboardLayout({
   const handleLogout = async () => {
     try {
       await authAPI.logout();
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -138,13 +138,6 @@ export default function DashboardLayout({
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
                   <h1 className="text-xl font-bold text-primary">aMORA</h1>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <X size={24} />
-                  </Button>
                 </div>
                 <nav className="flex-1 py-6 space-y-2">
                   <Button

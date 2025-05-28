@@ -3,45 +3,44 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Save } from "lucide-react";
+import { toast } from "sonner";
 
 import { simulationsAPI } from "@/services/api";
-import { Button } from "@/components/ui/button";
+import { SimulationCreate } from "@/types/simulation";
 import { SimulationForm } from "@/components/SimulationForm";
-import { useToast } from "@/components/ui/use-toast";
+import { PageHeader } from "@/components/PageHeader";
 
 export default function NewSimulationPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const handleCreateSimulation = async (simulationData: any) => {
+  const handleCreateSimulation = async (formData: {
+    property_value: string;
+    down_payment_percentage: number;
+    contract_years: number;
+    simulation_name?: string;
+    notes?: string;
+  }) => {
     setLoading(true);
     try {
       // Format and prepare data for API
-      const propertyValue =
-        Number(simulationData.property_value.replace(/\D/g, "")) / 100;
+      const propertyValueNumber =
+        parseFloat(
+          formData.property_value.replace(/[^0-9,-]/g, "").replace(",", ".")
+        ) || 0;
 
-      const formattedData = {
-        property_value: propertyValue,
-        down_payment_percentage: simulationData.down_payment_percentage,
-        contract_years: simulationData.contract_years,
-        down_payment_value:
-          propertyValue * (simulationData.down_payment_percentage / 100),
-        financing_amount:
-          propertyValue * (1 - simulationData.down_payment_percentage / 100),
-        additional_costs: propertyValue * 0.15,
-        monthly_savings:
-          (propertyValue * 0.15) / (simulationData.contract_years * 12),
-        name: simulationData.simulation_name || null,
-        notes: simulationData.notes || null,
+      const formattedData: SimulationCreate = {
+        property_value: propertyValueNumber,
+        down_payment_percentage: formData.down_payment_percentage,
+        contract_years: formData.contract_years,
+        name: formData.simulation_name || null,
+        notes: formData.notes || null,
       };
 
       // Call API to create simulation
-      const response = await simulationsAPI.create(formattedData);
+      await simulationsAPI.create(formattedData);
 
-      toast({
-        title: "Simulação criada com sucesso!",
+      toast("Simulação criada com sucesso!", {
         description: "Sua simulação foi salva.",
       });
 
@@ -49,11 +48,9 @@ export default function NewSimulationPage() {
       router.push("/dashboard/simulations");
     } catch (error) {
       console.error("Error creating simulation:", error);
-      toast({
-        title: "Erro ao criar simulação",
+      toast("Erro ao criar simulação", {
         description:
           "Ocorreu um erro ao salvar sua simulação. Tente novamente.",
-        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -62,12 +59,7 @@ export default function NewSimulationPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <h1 className="text-3xl font-bold">Nova Simulação</h1>
-      </div>
+      <PageHeader title="Nova Simulação" showBackButton />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
