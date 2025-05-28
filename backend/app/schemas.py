@@ -33,7 +33,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
+    email: Optional[EmailStr] = None
 
 # Simulation schemas
 class SimulationBase(BaseModel):
@@ -53,12 +53,6 @@ class SimulationBase(BaseModel):
     def down_payment_percentage_must_be_valid(cls, v):
         if v < 0 or v > 100:
             raise ValueError('Down payment percentage must be between 0 and 100')
-        return v
-
-    @validator('contract_years')
-    def contract_years_must_be_positive(cls, v):
-        if v <= 0:
-            raise ValueError('Contract years must be positive')
         return v
 
 class SimulationCreate(SimulationBase):
